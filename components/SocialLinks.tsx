@@ -1,5 +1,5 @@
 import React from 'react';
-import { FacebookIcon, TikTokIcon, InstagramIcon, WhatsAppIcon, XIcon } from './icons';
+import { FacebookIcon, TikTokIcon, InstagramIcon, TelegramIcon, XIcon } from './icons';
 
 const socialLinks = [
   {
@@ -23,9 +23,9 @@ const socialLinks = [
     icon: (props: any) => <XIcon {...props} />,
   },
   {
-    name: 'WhatsApp',
-    href: 'https://wa.me/', // A specific number can be added after the slash.
-    icon: (props: any) => <WhatsAppIcon {...props} />,
+    name: 'Telegram',
+    href: 'https://t.me/telawatelmosalamy',
+    icon: (props: any) => <TelegramIcon {...props} />,
   },
 ];
 
