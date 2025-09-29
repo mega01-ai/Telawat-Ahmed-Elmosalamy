@@ -8,7 +8,6 @@ import SplashScreen from './components/SplashScreen';
 import SocialLinks from './components/SocialLinks';
 import Player from './components/Player';
 import VideoPlayerModal from './components/VideoPlayerModal';
-import { parseDuration } from './utils';
 import { mediaItems as initialMediaItems } from './data';
 
 const FAVORITES_STORAGE_KEY = 'ahmed-elmosalamy-favorites';
@@ -36,7 +35,7 @@ const App: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const intervalRef = useRef<number | null>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   // --- Video Player State ---
   const [playingVideo, setPlayingVideo] = useState<MediaItem | null>(null);
@@ -61,46 +60,38 @@ const App: React.FC = () => {
   }, [mediaData]);
 
 
-  // Player playback simulation effect
+  // Effect to control audio playback (play/pause)
   useEffect(() => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
+    if (audioRef.current) {
+        if (isPlaying) {
+            audioRef.current.play().catch(error => console.error("Audio play failed:", error));
+        } else {
+            audioRef.current.pause();
+        }
     }
-
-    if (isPlaying && duration > 0) {
-      intervalRef.current = window.setInterval(() => {
-        setCurrentTime(prevTime => {
-          if (prevTime < duration) {
-            return prevTime + 1;
-          }
-          // Autoplay next track
-          handleNext();
-          return 0;
-        });
-      }, 1000);
-    }
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [isPlaying, duration]);
+  }, [isPlaying, activeMedia]);
   
   // --- Player Handlers ---
   const handlePlayItem = (item: MediaItem, playlist: MediaItem[]) => {
-    // If it's a video with a playable URL (youtube for now)
-    if (item.type === 'video' && item.url.includes('youtu')) {
-      handleClosePlayer(); // Stop audio player if it's running
+    if (item.type === 'video' && (item.url.includes('youtu') || item.url.includes('youtube'))) {
+      handleClosePlayer();
       setPlayingVideo(item);
-    } else {
-      // Handle audio or other media types with the bottom player
-      setPlayingVideo(null); // Close video modal if open
+    } else if (item.type === 'audio') {
+      setPlayingVideo(null);
+
+      // If the same item is clicked, toggle play/pause
+      if (activeMedia?.item.id === item.id) {
+          handleTogglePlay();
+          return;
+      }
+      
       setActiveMedia({ item, playlist });
-      const newDuration = parseDuration(item.duration);
-      setDuration(newDuration);
-      setCurrentTime(0);
       setIsPlaying(true);
+      if (audioRef.current) {
+        audioRef.current.src = item.url;
+        audioRef.current.load();
+        audioRef.current.play().catch(e => console.error("Error playing audio:", e));
+      }
     }
   };
   
@@ -133,10 +124,17 @@ const App: React.FC = () => {
   };
   
   const handleSeek = (time: number) => {
-    setCurrentTime(time);
+    if (audioRef.current) {
+      audioRef.current.currentTime = time;
+      setCurrentTime(time);
+    }
   };
 
   const handleClosePlayer = () => {
+    if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+    }
     setActiveMedia(null);
     setIsPlaying(false);
     setCurrentTime(0);
@@ -186,6 +184,13 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-900" style={{ paddingBottom: `${bottomPadding}px`, transition: 'padding-bottom 0.4s ease-out' }}>
+      <audio 
+        ref={audioRef}
+        onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime || 0)}
+        onLoadedMetadata={() => setDuration(audioRef.current?.duration || 0)}
+        onEnded={handleNext}
+        hidden
+      />
       {showSplash && <SplashScreen />}
       {!showSplash && 
         <>

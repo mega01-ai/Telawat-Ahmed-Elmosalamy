@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { MediaItem } from '../types';
 import { PlayIcon, PauseIcon, NextIcon, PreviousIcon, CloseIcon, AudioIcon, VideoIcon } from './icons';
@@ -31,7 +30,7 @@ const Player: React.FC<PlayerProps> = ({
   const socialLinksCompactHeight = 44; // in px
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onSeek(Number(e.target.value));
+    onSeek(e.target.valueAsNumber);
   };
 
   return (
@@ -41,17 +40,18 @@ const Player: React.FC<PlayerProps> = ({
     >
       <div className="container mx-auto px-4 py-3">
         {/* Progress bar */}
-        <div className="w-full h-2 group absolute top-0 left-0 px-4 -translate-y-1/2">
+        <div className="w-full h-2 absolute top-0 left-0 -translate-y-1/2">
             <input
               type="range"
               min="0"
-              max={duration}
+              max={duration || 100}
               value={currentTime}
               onChange={handleSeek}
-              className="w-full h-1 bg-slate-600 rounded-lg appearance-none cursor-pointer range-sm accent-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity"
+              className="w-full h-full bg-transparent appearance-none cursor-pointer range-sm accent-cyan-400"
+              aria-label="Audio progress bar"
             />
-            <div className="absolute top-1/2 left-0 w-full h-0.5 bg-slate-600 -z-10 pointer-events-none">
-                <div className="h-full bg-cyan-400" style={{ width: `${progressPercentage}%` }}></div>
+            <div className="absolute top-1/2 -translate-y-1/2 left-0 w-full h-1 bg-slate-600 -z-10 pointer-events-none rounded-full">
+                <div className="h-full bg-cyan-400 rounded-full" style={{ width: `${progressPercentage}%` }}></div>
             </div>
         </div>
 
