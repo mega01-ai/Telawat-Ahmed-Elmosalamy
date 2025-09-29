@@ -1,4 +1,3 @@
-
 import React from 'react';
 import type { View } from '../types';
 import SectionCard from './SectionCard';
@@ -14,7 +13,7 @@ const MainScreen: React.FC<MainScreenProps> = ({ onNavigate }) => {
     <div className="flex flex-col min-h-[calc(100vh-3rem)] justify-center text-center">
       <header className="py-8">
         <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 mb-12">
-            <div className="w-40 h-40 md:w-48 md:h-48 rounded-full overflow-hidden border-4 border-cyan-400/80 shadow-lg flex-shrink-0">
+            <div className="w-40 h-40 md:w-48 md:h-48 rounded-3xl overflow-hidden border-4 border-cyan-400/80 shadow-lg flex-shrink-0">
                 <img src={splashImage} alt="احمد المسلمي" className="w-full h-full object-cover" style={{objectPosition: '50% 15%'}}/>
             </div>
             <div className="text-center md:text-right">
