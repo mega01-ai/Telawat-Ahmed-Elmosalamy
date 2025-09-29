@@ -109,6 +109,21 @@ const App: React.FC = () => {
     };
   }, []);
 
+  // History management for back button
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      setCurrentView(event.state?.view || 'MAIN');
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    // Ensure the initial state is correctly set in the history
+    window.history.replaceState({ view: 'MAIN' }, '');
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
 
   // Load downloaded status from DB when it's ready
   useEffect(() => {
@@ -325,7 +340,14 @@ const App: React.FC = () => {
   };
 
   const navigateTo = (view: View) => {
-    setCurrentView(view);
+    if (currentView !== view) {
+        window.history.pushState({ view: view }, '');
+        setCurrentView(view);
+    }
+  };
+  
+  const handleBack = () => {
+      window.history.back();
   };
 
   const renderContent = () => {
@@ -334,11 +356,11 @@ const App: React.FC = () => {
 
     switch (currentView) {
       case 'LATEST':
-        return <LatestAdditionsScreen items={latestItems} onBack={() => navigateTo('MAIN')} onPlay={handlePlayItem} onToggleFavorite={handleToggleFavorite} onDownload={handleDownloadItem} onShare={handleShareItem} />;
+        return <LatestAdditionsScreen items={latestItems} onBack={handleBack} onPlay={handlePlayItem} onToggleFavorite={handleToggleFavorite} onDownload={handleDownloadItem} onShare={handleShareItem} />;
       case 'FAVORITES':
-        return <FavoritesScreen items={favoriteItems} onBack={() => navigateTo('MAIN')} onPlay={handlePlayItem} onToggleFavorite={handleToggleFavorite} onDownload={handleDownloadItem} onShare={handleShareItem} />;
+        return <FavoritesScreen items={favoriteItems} onBack={handleBack} onPlay={handlePlayItem} onToggleFavorite={handleToggleFavorite} onDownload={handleDownloadItem} onShare={handleShareItem} />;
       case 'PLAYLISTS':
-        return <PlaylistsScreen onBack={() => navigateTo('MAIN')} />;
+        return <PlaylistsScreen onBack={handleBack} />;
       case 'MAIN':
       default:
         return <MainScreen onNavigate={navigateTo} />;
