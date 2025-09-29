@@ -1,5 +1,6 @@
 
 import { MediaItem, Playlist } from './types';
+import { splashImage } from './images';
 
 export const mediaItems: MediaItem[] = [
   {
@@ -69,24 +70,24 @@ export const playlists: Playlist[] = [
         id: 1,
         name: 'تلاوات خاشعة',
         itemCount: 5,
-        coverImageUrl: 'https://picsum.photos/seed/playlist1/400/400',
+        coverImageUrl: splashImage,
     },
     {
         id: 2,
         name: 'القرآن الكريم كاملاً',
         itemCount: 114,
-        coverImageUrl: 'https://picsum.photos/seed/playlist2/400/400',
+        coverImageUrl: splashImage,
     },
     {
         id: 3,
         name: 'تلاوات صباحية',
         itemCount: 8,
-        coverImageUrl: 'https://picsum.photos/seed/playlist3/400/400',
+        coverImageUrl: splashImage,
     },
     {
         id: 4,
         name: 'تلاوات مسائية',
         itemCount: 12,
-        coverImageUrl: 'https://picsum.photos/seed/playlist4/400/400',
+        coverImageUrl: splashImage,
     }
 ];
