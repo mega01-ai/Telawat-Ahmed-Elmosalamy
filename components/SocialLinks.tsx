@@ -4,12 +4,12 @@ import { FacebookIcon, TikTokIcon, InstagramIcon, WhatsAppIcon } from './icons';
 const socialLinks = [
   {
     name: 'Facebook',
-    href: 'https://www.facebook.com/a_elmosalamy',
+    href: 'https://www.facebook.com/ahmedelmosalamy10',
     icon: (props: any) => <FacebookIcon {...props} />,
   },
   {
     name: 'TikTok',
-    href: 'https://www.tiktok.com/@a_elmosalamy',
+    href: 'https://www.tiktok.com/@a.elmosalamy',
     icon: (props: any) => <TikTokIcon {...props} />,
   },
   {
