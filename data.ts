@@ -3,6 +3,16 @@ import { splashImage } from './images';
 
 export const mediaItems: MediaItem[] = [
   {
+    id: 9,
+    title: 'تلاوة من سورة الروم',
+    reciter: 'احمد المسلمي',
+    type: 'audio',
+    url: 'https://archive.org/download/interview-recording-14-1/Interview%20recording%2014_1.mp3',
+    isFavorite: false,
+    addedDate: '2024-07-25T10:00:00Z',
+    duration: '01:03'
+  },
+  {
     id: 1,
     title: 'سورة البقرة',
     reciter: 'احمد المسلمي',
