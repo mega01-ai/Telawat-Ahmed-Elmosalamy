@@ -1,5 +1,5 @@
 import React from 'react';
-import { FacebookIcon, TikTokIcon, InstagramIcon, WhatsAppIcon } from './icons';
+import { FacebookIcon, TikTokIcon, InstagramIcon, WhatsAppIcon, XIcon } from './icons';
 
 const socialLinks = [
   {
@@ -16,6 +16,11 @@ const socialLinks = [
     name: 'Instagram',
     href: 'https://www.instagram.com/a_elmosalamy',
     icon: (props: any) => <InstagramIcon {...props} />,
+  },
+  {
+    name: 'X',
+    href: 'https://x.com/a_elmosalamy',
+    icon: (props: any) => <XIcon {...props} />,
   },
   {
     name: 'WhatsApp',
