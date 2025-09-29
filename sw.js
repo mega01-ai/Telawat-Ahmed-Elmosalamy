@@ -2,6 +2,7 @@ const CACHE_NAME = 'ahmed-elmosalamy-cache-v1';
 const urlsToCache = [
   '/',
   '/index.html',
+  '/manifest.webmanifest'
 ];
 
 self.addEventListener('install', event => {
