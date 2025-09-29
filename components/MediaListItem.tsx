@@ -68,7 +68,10 @@ const MediaListItem: React.FC<MediaListItemProps> = ({ item, onPlay, onToggleFav
     };
 
     return (
-        <div className="group flex items-center justify-between p-4 bg-slate-800/50 rounded-lg hover:bg-slate-700/50 transition-colors duration-200">
+        <div 
+            onClick={onPlay}
+            className="group flex items-center justify-between p-4 bg-slate-800/50 rounded-lg hover:bg-slate-700/50 transition-colors duration-200 cursor-pointer"
+        >
             <div className="flex items-center gap-4 min-w-0">
                 <div className="text-cyan-400 flex-shrink-0">
                     {item.type === 'audio' ? <AudioIcon className="w-6 h-6" /> : <VideoIcon className="w-6 h-6" />}
@@ -97,9 +100,9 @@ const MediaListItem: React.FC<MediaListItemProps> = ({ item, onPlay, onToggleFav
                         : <HeartIcon className="w-6 h-6 text-slate-400 group-hover:text-white transition-colors" />
                     }
                 </button>
-                <button onClick={onPlay} aria-label={`تشغيل ${item.title}`} className="text-slate-300 hover:text-cyan-400 transition-colors">
+                <div aria-label={`تشغيل ${item.title}`} className="text-slate-300 group-hover:text-cyan-400 transition-colors">
                     <PlayIcon className="w-10 h-10" />
-                </button>
+                </div>
             </div>
         </div>
     );
