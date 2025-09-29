@@ -1,17 +1,16 @@
-
 import React from 'react';
-import { mediaItems } from '../data';
 import MediaListItem from './MediaListItem';
 import { BackIcon } from './icons';
 import { MediaItem } from '../types';
 
 interface LatestAdditionsScreenProps {
+  items: MediaItem[];
   onBack: () => void;
   onPlay: (item: MediaItem, playlist: MediaItem[]) => void;
+  onToggleFavorite: (id: number) => void;
 }
 
-const LatestAdditionsScreen: React.FC<LatestAdditionsScreenProps> = ({ onBack, onPlay }) => {
-  const sortedItems = [...mediaItems].sort((a, b) => new Date(b.addedDate).getTime() - new Date(a.addedDate).getTime());
+const LatestAdditionsScreen: React.FC<LatestAdditionsScreenProps> = ({ items, onBack, onPlay, onToggleFavorite }) => {
 
   return (
     <div className="animate-fade-in">
@@ -22,7 +21,7 @@ const LatestAdditionsScreen: React.FC<LatestAdditionsScreenProps> = ({ onBack, o
         <h2 className="text-3xl font-bold text-center flex-grow text-cyan-400 pr-10">آخر الإضافات</h2>
       </header>
       <div className="space-y-4">
-        {sortedItems.map(item => <MediaListItem key={item.id} item={item} onPlay={() => onPlay(item, sortedItems)} />)}
+        {items.map(item => <MediaListItem key={item.id} item={item} onPlay={() => onPlay(item, items)} onToggleFavorite={onToggleFavorite} />)}
       </div>
     </div>
   );

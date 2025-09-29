@@ -63,6 +63,16 @@ export const mediaItems: MediaItem[] = [
     addedDate: '2024-07-18T12:00:00Z',
     duration: '12:30'
   },
+  {
+    id: 7,
+    title: 'تلاوة عذبة من سورة النور',
+    reciter: 'احمد المسلمي',
+    type: 'video',
+    url: 'https://youtu.be/Ojn1hltOxYk',
+    isFavorite: false,
+    addedDate: '2024-07-23T10:00:00Z',
+    duration: '05:29'
+  },
 ];
 
 export const playlists: Playlist[] = [

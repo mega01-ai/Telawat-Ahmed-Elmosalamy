@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import type { View, MediaItem } from './types';
 import MainScreen from './components/MainScreen';
@@ -8,11 +7,29 @@ import PlaylistsScreen from './components/PlaylistsScreen';
 import SplashScreen from './components/SplashScreen';
 import SocialLinks from './components/SocialLinks';
 import Player from './components/Player';
+import VideoPlayerModal from './components/VideoPlayerModal';
 import { parseDuration } from './utils';
+import { mediaItems as initialMediaItems } from './data';
+
+const FAVORITES_STORAGE_KEY = 'ahmed-elmosalamy-favorites';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>('MAIN');
   const [showSplash, setShowSplash] = useState(true);
+
+  const [mediaData, setMediaData] = useState<MediaItem[]>(() => {
+    try {
+        const storedFavorites = localStorage.getItem(FAVORITES_STORAGE_KEY);
+        const favoriteIds: number[] = storedFavorites ? JSON.parse(storedFavorites) : [];
+        return initialMediaItems.map(item => ({
+            ...item,
+            isFavorite: favoriteIds.includes(item.id),
+        }));
+    } catch (error) {
+        console.error("Failed to load favorites from localStorage", error);
+        return initialMediaItems;
+    }
+  });
 
   // --- Player State ---
   const [activeMedia, setActiveMedia] = useState<{ item: MediaItem, playlist: MediaItem[] } | null>(null);
@@ -20,6 +37,9 @@ const App: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const intervalRef = useRef<number | null>(null);
+
+  // --- Video Player State ---
+  const [playingVideo, setPlayingVideo] = useState<MediaItem | null>(null);
 
   // Splash Screen Effect
   useEffect(() => {
@@ -29,6 +49,17 @@ const App: React.FC = () => {
 
     return () => clearTimeout(timer);
   }, []);
+  
+  // Persist favorites to localStorage
+  useEffect(() => {
+    try {
+        const favoriteIds = mediaData.filter(item => item.isFavorite).map(item => item.id);
+        localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favoriteIds));
+    } catch (error) {
+        console.error("Failed to save favorites to localStorage", error);
+    }
+  }, [mediaData]);
+
 
   // Player playback simulation effect
   useEffect(() => {
@@ -58,11 +89,19 @@ const App: React.FC = () => {
   
   // --- Player Handlers ---
   const handlePlayItem = (item: MediaItem, playlist: MediaItem[]) => {
-    setActiveMedia({ item, playlist });
-    const newDuration = parseDuration(item.duration);
-    setDuration(newDuration);
-    setCurrentTime(0);
-    setIsPlaying(true);
+    // If it's a video with a playable URL (youtube for now)
+    if (item.type === 'video' && item.url.includes('youtu')) {
+      handleClosePlayer(); // Stop audio player if it's running
+      setPlayingVideo(item);
+    } else {
+      // Handle audio or other media types with the bottom player
+      setPlayingVideo(null); // Close video modal if open
+      setActiveMedia({ item, playlist });
+      const newDuration = parseDuration(item.duration);
+      setDuration(newDuration);
+      setCurrentTime(0);
+      setIsPlaying(true);
+    }
   };
   
   const handleTogglePlay = () => {
@@ -104,17 +143,31 @@ const App: React.FC = () => {
     setDuration(0);
   };
 
+  const handleCloseVideoPlayer = () => {
+    setPlayingVideo(null);
+  };
+
+  const handleToggleFavorite = (itemId: number) => {
+    setMediaData(currentMedia =>
+        currentMedia.map(item =>
+            item.id === itemId ? { ...item, isFavorite: !item.isFavorite } : item
+        )
+    );
+  };
+
   const navigateTo = (view: View) => {
     setCurrentView(view);
   };
 
   const renderContent = () => {
-    const props = { onBack: () => navigateTo('MAIN'), onPlay: handlePlayItem };
+    const latestItems = [...mediaData].sort((a, b) => new Date(b.addedDate).getTime() - new Date(a.addedDate).getTime());
+    const favoriteItems = mediaData.filter(item => item.isFavorite);
+
     switch (currentView) {
       case 'LATEST':
-        return <LatestAdditionsScreen {...props} />;
+        return <LatestAdditionsScreen items={latestItems} onBack={() => navigateTo('MAIN')} onPlay={handlePlayItem} onToggleFavorite={handleToggleFavorite} />;
       case 'FAVORITES':
-        return <FavoritesScreen {...props} />;
+        return <FavoritesScreen items={favoriteItems} onBack={() => navigateTo('MAIN')} onPlay={handlePlayItem} onToggleFavorite={handleToggleFavorite} />;
       case 'PLAYLISTS':
         return <PlaylistsScreen onBack={() => navigateTo('MAIN')} />;
       case 'MAIN':
@@ -140,6 +193,9 @@ const App: React.FC = () => {
             {renderContent()}
           </div>
           
+          {/* Video Player Modal */}
+          {playingVideo && <VideoPlayerModal item={playingVideo} onClose={handleCloseVideoPlayer} />}
+
           {/* Footer Elements */}
           <SocialLinks isPlayerActive={!!activeMedia} />
 

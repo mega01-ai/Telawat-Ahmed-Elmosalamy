@@ -1,17 +1,16 @@
-
 import React from 'react';
-import { mediaItems } from '../data';
 import MediaListItem from './MediaListItem';
 import { BackIcon } from './icons';
 import { MediaItem } from '../types';
 
 interface FavoritesScreenProps {
+  items: MediaItem[];
   onBack: () => void;
   onPlay: (item: MediaItem, playlist: MediaItem[]) => void;
+  onToggleFavorite: (id: number) => void;
 }
 
-const FavoritesScreen: React.FC<FavoritesScreenProps> = ({ onBack, onPlay }) => {
-  const favoriteItems = mediaItems.filter(item => item.isFavorite);
+const FavoritesScreen: React.FC<FavoritesScreenProps> = ({ items, onBack, onPlay, onToggleFavorite }) => {
 
   return (
     <div className="animate-fade-in">
@@ -22,8 +21,8 @@ const FavoritesScreen: React.FC<FavoritesScreenProps> = ({ onBack, onPlay }) => 
         <h2 className="text-3xl font-bold text-center flex-grow text-cyan-400 pr-10">المفضلة</h2>
       </header>
       <div className="space-y-4">
-        {favoriteItems.length > 0 ? (
-          favoriteItems.map(item => <MediaListItem key={item.id} item={item} onPlay={() => onPlay(item, favoriteItems)} />)
+        {items.length > 0 ? (
+          items.map(item => <MediaListItem key={item.id} item={item} onPlay={() => onPlay(item, items)} onToggleFavorite={onToggleFavorite} />)
         ) : (
           <p className="text-center text-slate-400 mt-8">لا توجد عناصر في المفضلة بعد.</p>
         )}
