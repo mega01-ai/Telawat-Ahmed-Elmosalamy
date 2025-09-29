@@ -90,6 +90,12 @@ export const DownloadCloudIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }
     </svg>
 );
 
+export const CloudOffIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22.61 16.95A5 5 0 0 0 18 10h-1.26a8 8 0 0 0-7.05-6M5 5a8 8 0 0 0 4 15h9a5 5 0 0 0 1.7-.3"/>
+        <line x1="1" x2="23" y1="1" y2="23"/>
+    </svg>
+);
 
 export const CheckCircleIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
     <svg className={className} fill="currentColor" viewBox="0 0 20 20">

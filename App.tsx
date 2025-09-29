@@ -9,16 +9,30 @@ import SocialLinks from './components/SocialLinks';
 import Player from './components/Player';
 import VideoPlayerModal from './components/VideoPlayerModal';
 import Notification from './components/Notification';
+import OfflineIndicator from './components/OfflineIndicator';
+import InstallPrompt from './components/InstallPrompt';
 import { mediaItems as initialMediaItems } from './data';
 import { initDB, getDownloadedIds, saveAudio, getAudio } from './db';
 
 const FAVORITES_STORAGE_KEY = 'ahmed-elmosalamy-favorites';
+
+interface BeforeInstallPromptEvent extends Event {
+  readonly platforms: string[];
+  readonly userChoice: Promise<{
+    outcome: 'accepted' | 'dismissed';
+    platform: string;
+  }>;
+  prompt(): Promise<void>;
+}
+
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>('MAIN');
   const [showSplash, setShowSplash] = useState(true);
   const [dbReady, setDbReady] = useState(false);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [installPromptEvent, setInstallPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
 
 
   const [mediaData, setMediaData] = useState<MediaItem[]>(() => {
@@ -59,6 +73,42 @@ const App: React.FC = () => {
   useEffect(() => {
     initDB().then(() => setDbReady(true)).catch(console.error);
   }, []);
+
+  // Network Status Listener
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // PWA Install Prompt Listener
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+        e.preventDefault();
+        setInstallPromptEvent(e as BeforeInstallPromptEvent);
+    };
+
+    const handleAppInstalled = () => {
+        // Clear the prompt event once installed
+        setInstallPromptEvent(null);
+    };
+    
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+        window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+        window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
+
 
   // Load downloaded status from DB when it's ready
   useEffect(() => {
@@ -259,6 +309,19 @@ const App: React.FC = () => {
     }
   };
 
+  const handleInstall = () => {
+    if (!installPromptEvent) return;
+    installPromptEvent.prompt();
+    installPromptEvent.userChoice.then(({ outcome }) => {
+        console.log(`User response to the install prompt: ${outcome}`);
+        setInstallPromptEvent(null);
+    });
+  };
+
+  const handleDismissInstall = () => {
+      setInstallPromptEvent(null);
+  };
+
   const navigateTo = (view: View) => {
     setCurrentView(view);
   };
@@ -287,6 +350,8 @@ const App: React.FC = () => {
   const bottomPadding = activeMedia 
     ? playerHeight + socialLinksCompactHeight 
     : socialLinksNormalHeight;
+  
+  const hasDownloads = mediaData.some(item => item.isDownloaded);
 
   return (
     <div className="min-h-screen bg-slate-900" style={{ paddingBottom: `${bottomPadding}px`, transition: 'padding-bottom 0.4s ease-out' }}>
@@ -300,6 +365,8 @@ const App: React.FC = () => {
       {showSplash && <SplashScreen />}
       {!showSplash && 
         <>
+          <OfflineIndicator isOnline={isOnline} hasDownloads={hasDownloads} />
+
           <div className="container mx-auto px-4 py-6 animate-fade-in">
             {renderContent()}
           </div>
@@ -310,6 +377,14 @@ const App: React.FC = () => {
           {playingVideo && <VideoPlayerModal item={playingVideo} onClose={handleCloseVideoPlayer} />}
 
           {/* Footer Elements */}
+          {installPromptEvent && (
+              <InstallPrompt 
+                  onInstall={handleInstall} 
+                  onDismiss={handleDismissInstall} 
+                  bottomOffset={bottomPadding} 
+              />
+          )}
+
           <SocialLinks isPlayerActive={!!activeMedia} />
 
           {activeMedia && (
