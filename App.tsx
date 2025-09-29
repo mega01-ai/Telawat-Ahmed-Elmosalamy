@@ -275,8 +275,10 @@ const App: React.FC = () => {
                 item.id === itemId ? { ...item, isDownloaded: true } : item
             )
         );
+        setNotification({ message: 'تم التحميل بنجاح!', type: 'success' });
     } catch (error) {
         console.error('Download failed:', error);
+        setNotification({ message: 'فشل التحميل، قد يكون المصدر غير متاح.', type: 'error' });
         throw error;
     }
   };
