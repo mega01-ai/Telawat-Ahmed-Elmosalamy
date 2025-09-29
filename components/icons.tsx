@@ -24,14 +24,13 @@ export const PlaylistIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => 
 
 export const BackIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l-8 4 8 4V8z" transform="rotate(180 12 12)"/>
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 4l-5 8 5 8" transform="rotate(180 12 12)" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
     </svg>
 );
 
 export const AudioIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.858 5.858a15 15 0 012.828 0m9.9 9.9a15 15 0 01-2.828 0M12 6v12" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
     </svg>
 );
 
@@ -47,6 +46,33 @@ export const PlayIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
   </svg>
 );
 
+export const PauseIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
+  <svg className={className} fill="currentColor" viewBox="0 0 20 20">
+    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h1a1 1 0 001-1V8a1 1 0 00-1-1H8zm3 0a1 1 0 00-1 1v4a1 1 0 001 1h1a1 1 0 001-1V8a1 1 0 00-1-1h-1z" clipRule="evenodd" />
+  </svg>
+);
+
+export const PreviousIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
+  <svg className={className} fill="currentColor" viewBox="0 0 20 20">
+     <path d="M8.445 14.832A1 1 0 0010 14V6a1 1 0 00-1.555-.832l-3 4a1 1 0 000 1.664l3 4z" />
+     <path d="M13.445 14.832A1 1 0 0015 14V6a1 1 0 00-1.555-.832l-3 4a1 1 0 000 1.664l3 4z" />
+  </svg>
+);
+
+export const NextIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
+  <svg className={className} fill="currentColor" viewBox="0 0 20 20">
+     <path d="M11.555 5.168A1 1 0 0010 6v8a1 1 0 001.555.832l3-4a1 1 0 000-1.664l-3-4z" />
+     <path d="M6.555 5.168A1 1 0 005 6v8a1 1 0 001.555.832l3-4a1 1 0 000-1.664l-3-4z" />
+  </svg>
+);
+
+export const CloseIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+  </svg>
+);
+
+
 export const FacebookIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
     <svg className={className} fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
         <path fillRule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clipRule="evenodd" />
@@ -54,8 +80,8 @@ export const FacebookIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => 
 );
 
 export const TikTokIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
-    <svg className={className} fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-2.43.03-4.83-.95-6.46-2.9-1.63-1.95-2.28-4.42-2.06-6.83.22-2.4 1.12-4.71 2.59-6.45 1.47-1.74 3.3-2.91 5.3-3.5.04 2.02.01 4.04.01 6.06-.39.29-.72.63-1.02 1.01-.19.24-.39.46-.6.65-.24 1.17-.59 2.3-.96 3.42-1.05-1.01-2.18-1.87-3.21-2.85-.22-2.07-.15-4.15.21-6.22.42-2.41 1.63-4.63 3.5-6.21 1.52-1.28 3.28-2.11 5.1-2.32Z"/>
+    <svg className={className} fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0 1 1-5-5v2a3 3 0 1 0 3 3V0Z"/>
     </svg>
 );
 
