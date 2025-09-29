@@ -8,13 +8,18 @@ import SplashScreen from './components/SplashScreen';
 import SocialLinks from './components/SocialLinks';
 import Player from './components/Player';
 import VideoPlayerModal from './components/VideoPlayerModal';
+import Notification from './components/Notification';
 import { mediaItems as initialMediaItems } from './data';
+import { initDB, getDownloadedIds, saveAudio, getAudio } from './db';
 
 const FAVORITES_STORAGE_KEY = 'ahmed-elmosalamy-favorites';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>('MAIN');
   const [showSplash, setShowSplash] = useState(true);
+  const [dbReady, setDbReady] = useState(false);
+  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
 
   const [mediaData, setMediaData] = useState<MediaItem[]>(() => {
     try {
@@ -23,6 +28,7 @@ const App: React.FC = () => {
         return initialMediaItems.map(item => ({
             ...item,
             isFavorite: favoriteIds.includes(item.id),
+            isDownloaded: false,
         }));
     } catch (error) {
         console.error("Failed to load favorites from localStorage", error);
@@ -36,6 +42,7 @@ const App: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const currentBlobUrl = useRef<string | null>(null);
 
   // --- Video Player State ---
   const [playingVideo, setPlayingVideo] = useState<MediaItem | null>(null);
@@ -44,10 +51,28 @@ const App: React.FC = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSplash(false);
-    }, 2500); // Show splash for 2.5 seconds
-
+    }, 2500);
     return () => clearTimeout(timer);
   }, []);
+
+  // Initialize DB
+  useEffect(() => {
+    initDB().then(() => setDbReady(true)).catch(console.error);
+  }, []);
+
+  // Load downloaded status from DB when it's ready
+  useEffect(() => {
+    if (dbReady) {
+      getDownloadedIds().then(downloadedIds => {
+        setMediaData(currentData =>
+          currentData.map(item => ({
+            ...item,
+            isDownloaded: downloadedIds.includes(item.id),
+          }))
+        );
+      }).catch(console.error);
+    }
+  }, [dbReady]);
   
   // Persist favorites to localStorage
   useEffect(() => {
@@ -71,15 +96,28 @@ const App: React.FC = () => {
     }
   }, [isPlaying, activeMedia]);
   
+  // Effect to clean up blob URLs
+  useEffect(() => {
+    return () => {
+        if (currentBlobUrl.current) {
+            URL.revokeObjectURL(currentBlobUrl.current);
+        }
+    }
+  }, []);
+
   // --- Player Handlers ---
-  const handlePlayItem = (item: MediaItem, playlist: MediaItem[]) => {
+  const handlePlayItem = async (item: MediaItem, playlist: MediaItem[]) => {
+    if (currentBlobUrl.current) {
+        URL.revokeObjectURL(currentBlobUrl.current);
+        currentBlobUrl.current = null;
+    }
+
     if (item.type === 'video' && (item.url.includes('youtu') || item.url.includes('youtube'))) {
       handleClosePlayer();
       setPlayingVideo(item);
     } else if (item.type === 'audio') {
       setPlayingVideo(null);
 
-      // If the same item is clicked, toggle play/pause
       if (activeMedia?.item.id === item.id) {
           handleTogglePlay();
           return;
@@ -87,8 +125,23 @@ const App: React.FC = () => {
       
       setActiveMedia({ item, playlist });
       setIsPlaying(true);
+
+      let audioSrc = item.url;
+      if (item.isDownloaded) {
+          try {
+              const blob = await getAudio(item.id);
+              if (blob) {
+                  const blobUrl = URL.createObjectURL(blob);
+                  currentBlobUrl.current = blobUrl;
+                  audioSrc = blobUrl;
+              }
+          } catch (error) {
+              console.error("Failed to load downloaded audio, falling back to network", error);
+          }
+      }
+      
       if (audioRef.current) {
-        audioRef.current.src = item.url;
+        audioRef.current.src = audioSrc;
         audioRef.current.load();
         audioRef.current.play().catch(e => console.error("Error playing audio:", e));
       }
@@ -131,6 +184,10 @@ const App: React.FC = () => {
   };
 
   const handleClosePlayer = () => {
+    if (currentBlobUrl.current) {
+        URL.revokeObjectURL(currentBlobUrl.current);
+        currentBlobUrl.current = null;
+    }
     if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.src = '';
@@ -153,6 +210,55 @@ const App: React.FC = () => {
     );
   };
 
+  const handleDownloadItem = async (itemId: number) => {
+    const itemToDownload = mediaData.find(item => item.id === itemId);
+    if (!itemToDownload || itemToDownload.isDownloaded || !dbReady) return;
+
+    try {
+        const response = await fetch(itemToDownload.url);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const blob = await response.blob();
+        await saveAudio(itemToDownload.id, blob);
+
+        setMediaData(currentData =>
+            currentData.map(item =>
+                item.id === itemId ? { ...item, isDownloaded: true } : item
+            )
+        );
+    } catch (error) {
+        console.error('Download failed:', error);
+        throw error;
+    }
+  };
+
+  const handleShareItem = async (itemId: number) => {
+    const itemToShare = mediaData.find(item => item.id === itemId);
+    if (!itemToShare) return;
+
+    const sharePayload = {
+      title: `تلاوة: ${itemToShare.title}`,
+      text: `استمع إلى تلاوة "${itemToShare.title}" للقارئ ${itemToShare.reciter}`,
+      url: itemToShare.url,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(sharePayload);
+      } catch (error) {
+        console.error('Sharing failed:', error);
+      }
+    } else {
+      // Fallback: Copy to clipboard
+      try {
+        await navigator.clipboard.writeText(itemToShare.url);
+        setNotification({ message: 'تم نسخ الرابط إلى الحافظة', type: 'success' });
+      } catch (error) {
+        console.error('Failed to copy URL:', error);
+        setNotification({ message: 'فشل نسخ الرابط', type: 'error' });
+      }
+    }
+  };
+
   const navigateTo = (view: View) => {
     setCurrentView(view);
   };
@@ -163,9 +269,9 @@ const App: React.FC = () => {
 
     switch (currentView) {
       case 'LATEST':
-        return <LatestAdditionsScreen items={latestItems} onBack={() => navigateTo('MAIN')} onPlay={handlePlayItem} onToggleFavorite={handleToggleFavorite} />;
+        return <LatestAdditionsScreen items={latestItems} onBack={() => navigateTo('MAIN')} onPlay={handlePlayItem} onToggleFavorite={handleToggleFavorite} onDownload={handleDownloadItem} onShare={handleShareItem} />;
       case 'FAVORITES':
-        return <FavoritesScreen items={favoriteItems} onBack={() => navigateTo('MAIN')} onPlay={handlePlayItem} onToggleFavorite={handleToggleFavorite} />;
+        return <FavoritesScreen items={favoriteItems} onBack={() => navigateTo('MAIN')} onPlay={handlePlayItem} onToggleFavorite={handleToggleFavorite} onDownload={handleDownloadItem} onShare={handleShareItem} />;
       case 'PLAYLISTS':
         return <PlaylistsScreen onBack={() => navigateTo('MAIN')} />;
       case 'MAIN':
@@ -197,6 +303,8 @@ const App: React.FC = () => {
           <div className="container mx-auto px-4 py-6 animate-fade-in">
             {renderContent()}
           </div>
+
+          {notification && <Notification message={notification.message} type={notification.type} onClose={() => setNotification(null)} />}
           
           {/* Video Player Modal */}
           {playingVideo && <VideoPlayerModal item={playingVideo} onClose={handleCloseVideoPlayer} />}

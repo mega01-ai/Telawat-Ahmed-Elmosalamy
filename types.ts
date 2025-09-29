@@ -10,6 +10,7 @@ export interface MediaItem {
   isFavorite: boolean;
   addedDate: string; // ISO date string
   duration: string; // e.g., "05:30"
+  isDownloaded?: boolean;
 }
 
 export interface Playlist {

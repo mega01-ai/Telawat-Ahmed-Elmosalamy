@@ -8,9 +8,11 @@ interface LatestAdditionsScreenProps {
   onBack: () => void;
   onPlay: (item: MediaItem, playlist: MediaItem[]) => void;
   onToggleFavorite: (id: number) => void;
+  onDownload: (id: number) => Promise<void>;
+  onShare: (id: number) => void;
 }
 
-const LatestAdditionsScreen: React.FC<LatestAdditionsScreenProps> = ({ items, onBack, onPlay, onToggleFavorite }) => {
+const LatestAdditionsScreen: React.FC<LatestAdditionsScreenProps> = ({ items, onBack, onPlay, onToggleFavorite, onDownload, onShare }) => {
 
   return (
     <div className="animate-fade-in">
@@ -21,7 +23,7 @@ const LatestAdditionsScreen: React.FC<LatestAdditionsScreenProps> = ({ items, on
         <h2 className="text-3xl font-bold text-center flex-grow text-cyan-400 pr-10">آخر الإضافات</h2>
       </header>
       <div className="space-y-4">
-        {items.map(item => <MediaListItem key={item.id} item={item} onPlay={() => onPlay(item, items)} onToggleFavorite={onToggleFavorite} />)}
+        {items.map(item => <MediaListItem key={item.id} item={item} onPlay={() => onPlay(item, items)} onToggleFavorite={onToggleFavorite} onDownload={onDownload} onShare={onShare} />)}
       </div>
     </div>
   );

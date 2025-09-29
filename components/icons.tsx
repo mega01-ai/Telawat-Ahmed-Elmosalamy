@@ -78,6 +78,24 @@ export const CloseIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
   </svg>
 );
 
+export const DownloadIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+    </svg>
+);
+
+export const CheckCircleIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
+    <svg className={className} fill="currentColor" viewBox="0 0 20 20">
+        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+    </svg>
+);
+
+export const ShareIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12s-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.368a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+    </svg>
+);
+
 
 export const FacebookIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
     <svg className={className} fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
