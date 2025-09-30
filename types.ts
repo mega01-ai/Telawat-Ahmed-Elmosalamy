@@ -20,4 +20,4 @@ export interface Playlist {
   coverImageUrl: string;
 }
 
-export type View = 'MAIN' | 'LATEST' | 'FAVORITES' | 'PLAYLISTS';
+export type View = 'MAIN' | 'LATEST' | 'FAVORITES' | 'PLAYLISTS' | 'SETTINGS';

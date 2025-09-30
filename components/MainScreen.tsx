@@ -1,7 +1,7 @@
 import React from 'react';
 import type { View } from '../types';
 import SectionCard from './SectionCard';
-import { ClockIcon, HeartIcon, PlaylistIcon } from './icons';
+import { ClockIcon, HeartIcon, PlaylistIcon, SettingsIcon } from './icons';
 import { splashImage } from '../images';
 
 interface MainScreenProps {
@@ -22,7 +22,7 @@ const MainScreen: React.FC<MainScreenProps> = ({ onNavigate }) => {
             </div>
         </div>
       </header>
-      <main className="w-full flex flex-row justify-center items-stretch gap-3 md:gap-5 px-2 md:px-4">
+      <main className="w-full flex flex-row flex-wrap justify-center items-stretch gap-3 md:gap-5 px-2 md:px-4">
         <SectionCard 
           title="آخر الإضافات" 
           icon={<ClockIcon className="w-8 h-8 md:w-10 md:h-10" />} 
@@ -37,6 +37,11 @@ const MainScreen: React.FC<MainScreenProps> = ({ onNavigate }) => {
           title="القوائم" 
           icon={<PlaylistIcon className="w-8 h-8 md:w-10 md:h-10" />} 
           onClick={() => onNavigate('PLAYLISTS')} 
+        />
+        <SectionCard 
+          title="الإعدادات" 
+          icon={<SettingsIcon className="w-8 h-8 md:w-10 md:h-10" />} 
+          onClick={() => onNavigate('SETTINGS')} 
         />
       </main>
     </div>

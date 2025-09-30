@@ -4,6 +4,7 @@ import MainScreen from './components/MainScreen';
 import LatestAdditionsScreen from './components/LatestAdditionsScreen';
 import FavoritesScreen from './components/FavoritesScreen';
 import PlaylistsScreen from './components/PlaylistsScreen';
+import SettingsScreen from './components/SettingsScreen';
 import SplashScreen from './components/SplashScreen';
 import SocialLinks from './components/SocialLinks';
 import Player from './components/Player';
@@ -13,8 +14,14 @@ import OfflineIndicator from './components/OfflineIndicator';
 import InstallPrompt from './components/InstallPrompt';
 import { mediaItems as initialMediaItems } from './data';
 import { initDB, getDownloadedIds, saveAudio, getAudio } from './db';
+import { urlBase64ToUint8Array } from './utils';
+
 
 const FAVORITES_STORAGE_KEY = 'ahmed-elmosalamy-favorites';
+// This VAPID key is used to identify the application server to the push service.
+// In a real-world scenario, this key should be securely generated and managed on a server.
+const VAPID_PUBLIC_KEY = 'BPnZEgACUy5zC2nOG_n_3L3JtL2eY2y8Tq525t-SK4yr2a8p4AhzQUUa_hFLF9zAc_I37L2TfZIFe13sD2uG274';
+
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
@@ -33,6 +40,7 @@ const App: React.FC = () => {
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [installPromptEvent, setInstallPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
+  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
 
 
   const [mediaData, setMediaData] = useState<MediaItem[]>(() => {
@@ -72,6 +80,15 @@ const App: React.FC = () => {
   // Initialize DB
   useEffect(() => {
     initDB().then(() => setDbReady(true)).catch(console.error);
+  }, []);
+
+  // Check notification permission on load
+  useEffect(() => {
+    if ('Notification' in window) {
+        // FIX: Use window.Notification to access the browser's Notification API,
+        // as `Notification` is shadowed by the imported React component.
+        setNotificationPermission(window.Notification.permission);
+    }
   }, []);
 
   // Network Status Listener
@@ -339,6 +356,39 @@ const App: React.FC = () => {
       setInstallPromptEvent(null);
   };
 
+  const handleEnableNotifications = async () => {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        setNotification({ message: 'الإشعارات غير مدعومة في هذا المتصفح.', type: 'error' });
+        return;
+    }
+
+    // FIX: Use window.Notification to access the browser's Notification API,
+    // as `Notification` is shadowed by the imported React component.
+    const permission = await window.Notification.requestPermission();
+    setNotificationPermission(permission); // Update state with user's choice
+
+    if (permission === 'granted') {
+        try {
+            const swRegistration = await navigator.serviceWorker.ready;
+            const subscription = await swRegistration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+            });
+            
+            // In a real app, send this subscription object to your backend server.
+            console.log('User is subscribed:', JSON.stringify(subscription));
+            setNotification({ message: 'تم تفعيل الإشعارات بنجاح!', type: 'success' });
+
+        } catch (error) {
+            console.error('Failed to subscribe to push notifications:', error);
+            setNotification({ message: 'فشل تفعيل الإشعارات.', type: 'error' });
+        }
+    } else if (permission === 'denied') {
+        setNotification({ message: 'تم حظر إذن الإشعارات.', type: 'error' });
+    }
+    // If 'default', nothing happens yet, the user dismissed the prompt.
+  };
+
   const navigateTo = (view: View) => {
     if (currentView !== view) {
         window.history.pushState({ view: view }, '');
@@ -361,6 +411,8 @@ const App: React.FC = () => {
         return <FavoritesScreen items={favoriteItems} onBack={handleBack} onPlay={handlePlayItem} onToggleFavorite={handleToggleFavorite} onDownload={handleDownloadItem} onShare={handleShareItem} />;
       case 'PLAYLISTS':
         return <PlaylistsScreen onBack={handleBack} />;
+      case 'SETTINGS':
+        return <SettingsScreen onBack={handleBack} onEnableNotifications={handleEnableNotifications} notificationPermission={notificationPermission} />;
       case 'MAIN':
       default:
         return <MainScreen onNavigate={navigateTo} />;
