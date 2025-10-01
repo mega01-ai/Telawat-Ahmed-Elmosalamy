@@ -1,6 +1,7 @@
 
+
 import React from 'react';
-import { splashImage } from '../images';
+import { splashImage } from './components/images';
 
 const SplashScreen: React.FC = () => {
   return (

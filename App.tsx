@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import type { View, MediaItem } from './types';
 import MainScreen from './components/MainScreen';
@@ -5,14 +6,14 @@ import LatestAdditionsScreen from './components/LatestAdditionsScreen';
 import FavoritesScreen from './components/FavoritesScreen';
 import PlaylistsScreen from './components/PlaylistsScreen';
 import SubscribeScreen from './components/SettingsScreen';
-import SplashScreen from './components/SplashScreen';
+import SplashScreen from './SplashScreen';
 import SocialLinks from './components/SocialLinks';
 import Player from './components/Player';
 import VideoPlayerModal from './components/VideoPlayerModal';
-import Notification from './components/Notification';
+import Notification from './Notification';
 import OfflineIndicator from './components/OfflineIndicator';
 import InstallPrompt from './components/InstallPrompt';
-import { mediaItems as initialMediaItems } from './data';
+import { mediaItems as initialMediaItems } from './components/data';
 import { initDB, getDownloadedIds, saveAudio, getAudio } from './db';
 import { urlBase64ToUint8Array } from './utils';
 import { BellIcon } from './components/icons';

@@ -1,6 +1,7 @@
 
+
 import React from 'react';
-import { playlists } from '../data';
+import { playlists } from './data';
 import { BackIcon } from './icons';
 import type { Playlist } from '../types';
 

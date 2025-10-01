@@ -1,8 +1,9 @@
+
 import React from 'react';
 import type { View } from '../types';
 import SectionCard from './SectionCard';
 import { ClockIcon, HeartIcon, PlaylistIcon } from './icons';
-import { splashImage } from '../images';
+import { splashImage } from './images';
 
 interface MainScreenProps {
   onNavigate: (view: View) => void;

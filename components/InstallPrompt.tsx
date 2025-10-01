@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { CloseIcon } from './icons';
-import { splashImage } from '../images';
+import { splashImage } from './images';
 
 interface InstallPromptProps {
     onInstall: () => void;

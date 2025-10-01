@@ -1,4 +1,4 @@
-import { MediaItem, Playlist } from './types';
+import { MediaItem, Playlist } from '../types';
 import { splashImage } from './images';
 
 export const mediaItems: MediaItem[] = [
