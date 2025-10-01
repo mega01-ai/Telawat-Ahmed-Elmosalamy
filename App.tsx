@@ -1,12 +1,13 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import type { View, MediaItem } from './types';
+import type { View, MediaItem, Playlist } from './types';
 import MainScreen from './components/MainScreen';
 import LatestAdditionsScreen from './components/LatestAdditionsScreen';
 import FavoritesScreen from './components/FavoritesScreen';
 import PlaylistsScreen from './components/PlaylistsScreen';
 import SettingsScreen from './components/SettingsScreen';
 import DownloadsScreen from './components/DownloadsScreen';
+import PlaylistDetailsScreen from './components/PlaylistDetailsScreen';
 import SplashScreen from './SplashScreen';
 import SocialLinks from './components/SocialLinks';
 import Player from './components/Player';
@@ -44,6 +45,7 @@ const App: React.FC = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [installPromptEvent, setInstallPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
+  const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null);
 
 
   const [mediaData, setMediaData] = useState<MediaItem[]>(() => {
@@ -132,7 +134,11 @@ const App: React.FC = () => {
   // History management for back button
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
-      setCurrentView(event.state?.view || 'MAIN');
+      if (event.state?.view === 'PLAYLIST_DETAILS' && currentView !== 'PLAYLISTS') {
+        setCurrentView('PLAYLISTS');
+      } else {
+        setCurrentView(event.state?.view || 'MAIN');
+      }
     };
 
     window.addEventListener('popstate', handlePopState);
@@ -142,7 +148,7 @@ const App: React.FC = () => {
     return () => {
       window.removeEventListener('popstate', handlePopState);
     };
-  }, []);
+  }, [currentView]);
 
 
   // Load downloaded status from DB when it's ready
@@ -398,6 +404,11 @@ const App: React.FC = () => {
         setCurrentView(view);
     }
   };
+
+  const handleSelectPlaylist = (playlist: Playlist) => {
+    setSelectedPlaylist(playlist);
+    navigateTo('PLAYLIST_DETAILS');
+  };
   
   const handleBack = () => {
       window.history.back();
@@ -416,7 +427,13 @@ const App: React.FC = () => {
       case 'DOWNLOADS':
         return <DownloadsScreen items={downloadedItems} onBack={handleBack} onPlay={handlePlayItem} onToggleFavorite={handleToggleFavorite} onDownload={handleDownloadItem} onShare={handleShareItem} />;
       case 'PLAYLISTS':
-        return <PlaylistsScreen onBack={handleBack} />;
+        return <PlaylistsScreen onBack={handleBack} onPlaylistSelect={handleSelectPlaylist} />;
+      case 'PLAYLIST_DETAILS':
+        if (!selectedPlaylist) {
+          // Fallback if state is lost
+          return <PlaylistsScreen onBack={handleBack} onPlaylistSelect={handleSelectPlaylist} />;
+        }
+        return <PlaylistDetailsScreen playlist={selectedPlaylist} items={[]} onBack={handleBack} onPlay={handlePlayItem} onToggleFavorite={handleToggleFavorite} onDownload={handleDownloadItem} onShare={handleShareItem} />;
       case 'SETTINGS':
         return <SettingsScreen onBack={handleBack} onEnableNotifications={handleEnableNotifications} notificationPermission={notificationPermission} />;
       case 'MAIN':

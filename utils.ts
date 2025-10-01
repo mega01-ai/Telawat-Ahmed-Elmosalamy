@@ -1,4 +1,5 @@
 
+
 /**
  * Converts a VAPID public key string to a Uint8Array.
  * This is necessary for the Push API subscription.
@@ -47,8 +48,8 @@ export const formatDuration = (seconds: number): string => {
 };
 
 /**
- * Formats an ISO date string into a Hijri and Gregorian date string.
- * e.g., "٢-ربيع الأول-١٤٤٥هـ ١٧-٩-٢٠٢٣م"
+ * Formats an ISO date string into a Hijri and Gregorian date string, including the day of the week.
+ * e.g., "السبت، ٢-ربيع الأول-١٤٤٥هـ ١٧-٩-٢٠٢٣م"
  * @param isoDate The date string.
  * @returns The formatted string.
  */
@@ -60,17 +61,19 @@ export const formatFullDate = (isoDate: string): string => {
     // Hijri Date - using umalqura calendar for accuracy in Saudi Arabia
     // and 'arab' numbering system for Eastern Arabic numerals.
     const hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
+      weekday: 'long',
       day: 'numeric',
       month: 'long',
       year: 'numeric',
       numberingSystem: 'arab',
     });
     const hijriParts = hijriFormatter.formatToParts(date);
+    const weekday = hijriParts.find(p => p.type === 'weekday')?.value;
     const hijriDay = hijriParts.find(p => p.type === 'day')?.value;
     const hijriMonth = hijriParts.find(p => p.type === 'month')?.value;
     const hijriYear = hijriParts.find(p => p.type === 'year')?.value;
     
-    if (!hijriDay || !hijriMonth || !hijriYear) {
+    if (!weekday || !hijriDay || !hijriMonth || !hijriYear) {
         throw new Error('Could not parse Hijri date parts');
     }
     const hijriDate = `${hijriDay}-${hijriMonth}-${hijriYear}هـ`;
@@ -86,7 +89,7 @@ export const formatFullDate = (isoDate: string): string => {
     // Replace slashes or Arabic commas with dashes for a consistent format.
     const gregorianDate = `${gregorianFormatter.format(date).replace(/[\/٬]/g, '-')}م`;
     
-    return `${hijriDate} ${gregorianDate}`;
+    return `${weekday}، ${hijriDate} ${gregorianDate}`;
   } catch (error) {
     console.error(`Error formatting date "${isoDate}":`, error);
     return ''; // Return empty string on error to not break the UI

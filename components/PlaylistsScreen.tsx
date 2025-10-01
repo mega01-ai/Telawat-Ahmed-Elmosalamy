@@ -7,10 +7,11 @@ import type { Playlist } from '../types';
 
 interface PlaylistsScreenProps {
   onBack: () => void;
+  onPlaylistSelect: (playlist: Playlist) => void;
 }
 
-const PlaylistCard: React.FC<{ playlist: Playlist }> = ({ playlist }) => (
-    <div className="group cursor-pointer">
+const PlaylistCard: React.FC<{ playlist: Playlist, onClick: () => void }> = ({ playlist, onClick }) => (
+    <div className="group cursor-pointer" onClick={onClick}>
         <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-slate-800">
             <img src={playlist.coverImageUrl} alt={playlist.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
             <div className="absolute inset-0 bg-black/40"></div>
@@ -21,7 +22,7 @@ const PlaylistCard: React.FC<{ playlist: Playlist }> = ({ playlist }) => (
 );
 
 
-const PlaylistsScreen: React.FC<PlaylistsScreenProps> = ({ onBack }) => {
+const PlaylistsScreen: React.FC<PlaylistsScreenProps> = ({ onBack, onPlaylistSelect }) => {
   return (
     <div className="animate-fade-in">
       <header className="flex items-center mb-6">
@@ -32,7 +33,7 @@ const PlaylistsScreen: React.FC<PlaylistsScreenProps> = ({ onBack }) => {
       </header>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {playlists.map(playlist => (
-          <PlaylistCard key={playlist.id} playlist={playlist} />
+          <PlaylistCard key={playlist.id} playlist={playlist} onClick={() => onPlaylistSelect(playlist)} />
         ))}
       </div>
     </div>

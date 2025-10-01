@@ -18,25 +18,25 @@ export const playlists: Playlist[] = [
     {
         id: 1,
         name: 'تلاوات خاشعة',
-        itemCount: 5,
+        itemCount: 0,
         coverImageUrl: splashImage,
     },
     {
         id: 2,
         name: 'القرآن الكريم كاملاً',
-        itemCount: 114,
+        itemCount: 0,
         coverImageUrl: splashImage,
     },
     {
         id: 3,
         name: 'تلاوات صباحية',
-        itemCount: 8,
+        itemCount: 0,
         coverImageUrl: splashImage,
     },
     {
         id: 4,
         name: 'تلاوات مسائية',
-        itemCount: 12,
+        itemCount: 0,
         coverImageUrl: splashImage,
     }
 ];
