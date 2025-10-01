@@ -38,24 +38,32 @@ const Player: React.FC<PlayerProps> = ({
       className="fixed left-0 right-0 z-20 bg-slate-800/80 backdrop-blur-lg border-t border-slate-700/60 text-slate-100 animate-slide-up-fade-in"
       style={{ bottom: `${socialLinksCompactHeight}px` }}
     >
-      <div className="container mx-auto px-4 py-3">
-        {/* Progress bar */}
-        <div className="w-full h-2 absolute top-0 left-0 -translate-y-1/2">
+      <div className="container mx-auto px-4 py-2">
+        {/* Progress bar and time display */}
+        <div className="flex items-center gap-2">
+          <span className="w-12 text-center text-xs text-slate-400 font-mono">
+            {formatDuration(currentTime)}
+          </span>
+          <div className="relative flex-grow h-2">
             <input
               type="range"
               min="0"
               max={duration || 100}
               value={currentTime}
               onChange={handleSeek}
-              className="w-full h-full bg-transparent appearance-none cursor-pointer range-sm accent-cyan-400"
+              className="absolute w-full h-full bg-transparent appearance-none cursor-pointer z-10 range-sm accent-cyan-400"
               aria-label="Audio progress bar"
             />
-            <div className="absolute top-1/2 -translate-y-1/2 left-0 w-full h-1 bg-slate-600 -z-10 pointer-events-none rounded-full">
+            <div className="absolute top-1/2 -translate-y-1/2 left-0 w-full h-1 bg-slate-600 rounded-full">
                 <div className="h-full bg-cyan-400 rounded-full" style={{ width: `${progressPercentage}%` }}></div>
             </div>
+          </div>
+          <span className="w-12 text-center text-xs text-slate-400 font-mono">
+            {formatDuration(duration)}
+          </span>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mt-1">
           {/* Track Info */}
           <div className="flex items-center gap-3 w-1/3 min-w-0">
             <div className="text-cyan-400 flex-shrink-0">
@@ -76,11 +84,8 @@ const Player: React.FC<PlayerProps> = ({
             <button onClick={onNext} aria-label="Next track" className="text-slate-300 hover:text-white transition-colors"><NextIcon className="w-8 h-8"/></button>
           </div>
           
-          {/* Time and Close */}
-          <div className="flex items-center justify-end gap-4 w-1/3">
-            <span className="text-sm text-slate-400 font-mono hidden sm:block">
-              {formatDuration(currentTime)} / {formatDuration(duration)}
-            </span>
+          {/* Close Button */}
+          <div className="flex items-center justify-end w-1/3">
             <button onClick={onClose} aria-label="Close player" className="text-slate-400 hover:text-white transition-colors"><CloseIcon className="w-6 h-6"/></button>
           </div>
         </div>
