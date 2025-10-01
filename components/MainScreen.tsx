@@ -1,7 +1,7 @@
 import React from 'react';
 import type { View } from '../types';
 import SectionCard from './SectionCard';
-import { ClockIcon, HeartIcon, PlaylistIcon, SettingsIcon } from './icons';
+import { ClockIcon, HeartIcon, PlaylistIcon } from './icons';
 import { splashImage } from '../images';
 
 interface MainScreenProps {
@@ -37,11 +37,6 @@ const MainScreen: React.FC<MainScreenProps> = ({ onNavigate }) => {
           title="القوائم" 
           icon={<PlaylistIcon className="w-8 h-8 md:w-10 md:h-10" />} 
           onClick={() => onNavigate('PLAYLISTS')} 
-        />
-        <SectionCard 
-          title="الإعدادات" 
-          icon={<SettingsIcon className="w-8 h-8 md:w-10 md:h-10" />} 
-          onClick={() => onNavigate('SETTINGS')} 
         />
       </main>
     </div>

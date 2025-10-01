@@ -4,7 +4,7 @@ import MainScreen from './components/MainScreen';
 import LatestAdditionsScreen from './components/LatestAdditionsScreen';
 import FavoritesScreen from './components/FavoritesScreen';
 import PlaylistsScreen from './components/PlaylistsScreen';
-import SettingsScreen from './components/SettingsScreen';
+import SubscribeScreen from './components/SettingsScreen';
 import SplashScreen from './components/SplashScreen';
 import SocialLinks from './components/SocialLinks';
 import Player from './components/Player';
@@ -15,6 +15,7 @@ import InstallPrompt from './components/InstallPrompt';
 import { mediaItems as initialMediaItems } from './data';
 import { initDB, getDownloadedIds, saveAudio, getAudio } from './db';
 import { urlBase64ToUint8Array } from './utils';
+import { BellIcon } from './components/icons';
 
 
 const FAVORITES_STORAGE_KEY = 'ahmed-elmosalamy-favorites';
@@ -377,11 +378,11 @@ const App: React.FC = () => {
             
             // In a real app, send this subscription object to your backend server.
             console.log('User is subscribed:', JSON.stringify(subscription));
-            setNotification({ message: 'تم تفعيل الإشعارات بنجاح!', type: 'success' });
+            setNotification({ message: 'تم الاشتراك بنجاح!', type: 'success' });
 
         } catch (error) {
             console.error('Failed to subscribe to push notifications:', error);
-            setNotification({ message: 'فشل تفعيل الإشعارات.', type: 'error' });
+            setNotification({ message: 'فشل الاشتراك في التنبيهات.', type: 'error' });
         }
     } else if (permission === 'denied') {
         setNotification({ message: 'تم حظر إذن الإشعارات.', type: 'error' });
@@ -412,7 +413,7 @@ const App: React.FC = () => {
       case 'PLAYLISTS':
         return <PlaylistsScreen onBack={handleBack} />;
       case 'SETTINGS':
-        return <SettingsScreen onBack={handleBack} onEnableNotifications={handleEnableNotifications} notificationPermission={notificationPermission} />;
+        return <SubscribeScreen onBack={handleBack} onEnableNotifications={handleEnableNotifications} notificationPermission={notificationPermission} />;
       case 'MAIN':
       default:
         return <MainScreen onNavigate={navigateTo} />;
@@ -441,6 +442,21 @@ const App: React.FC = () => {
       {showSplash && <SplashScreen />}
       {!showSplash && 
         <>
+          {currentView === 'MAIN' && (
+            <div className="fixed top-4 left-4 z-30 animate-fade-in">
+              <button 
+                  onClick={() => navigateTo('SETTINGS')}
+                  aria-label="الاشتراك في التنبيهات"
+                  className="relative p-3 bg-slate-800/60 backdrop-blur-sm rounded-full text-cyan-400 hover:text-cyan-300 hover:bg-slate-700/80 transition-all duration-300 shadow-lg"
+              >
+                  <BellIcon className="w-6 h-6" />
+                  {notificationPermission === 'default' && (
+                      <span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-slate-800/60"></span>
+                  )}
+              </button>
+            </div>
+          )}
+          
           <OfflineIndicator isOnline={isOnline} hasDownloads={hasDownloads} />
 
           <div className="container mx-auto px-4 py-6 animate-fade-in">
