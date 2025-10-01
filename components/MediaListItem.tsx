@@ -33,22 +33,24 @@ const MediaListItem: React.FC<MediaListItemProps> = ({ item, onPlay, onToggleFav
     };
 
     const renderDownloadButton = () => {
+        const buttonClasses = "w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-full transition-colors";
+        
         if (item.type !== 'audio') {
-            return <div className="w-10 h-10 flex-shrink-0" />; // Keep layout consistent
+            return <div className="w-9 h-9 flex-shrink-0" />; // Keep layout consistent
         }
 
         if (item.isDownloaded) {
             return (
-                <div className="p-2 flex items-center gap-1 text-green-400" aria-label="تم التحميل">
-                    <CheckCircleIcon className="w-6 h-6" />
+                <div className={`${buttonClasses} text-green-400`} aria-label="تم التحميل">
+                    <CheckCircleIcon className="w-5 h-5" />
                 </div>
             );
         }
 
         if (isDownloading) {
             return (
-                <div className="p-2" aria-label="جاري التحميل">
-                    <svg className="animate-spin h-6 w-6 text-cyan-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <div className={buttonClasses} aria-label="جاري التحميل">
+                    <svg className="animate-spin h-5 w-5 text-cyan-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
@@ -60,9 +62,9 @@ const MediaListItem: React.FC<MediaListItemProps> = ({ item, onPlay, onToggleFav
             <button
                 onClick={handleDownloadClick}
                 aria-label="تحميل"
-                className="p-2 rounded-full hover:bg-slate-700/70 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-colors"
+                className={`${buttonClasses} hover:bg-slate-700/70 focus:outline-none focus:ring-2 focus:ring-cyan-400`}
             >
-                <DownloadIcon className="w-6 h-6 text-slate-400 group-hover:text-white transition-colors" />
+                <DownloadIcon className="w-5 h-5 text-slate-400 group-hover:text-white" />
             </button>
         );
     };
@@ -70,38 +72,38 @@ const MediaListItem: React.FC<MediaListItemProps> = ({ item, onPlay, onToggleFav
     return (
         <div 
             onClick={onPlay}
-            className="group flex items-center justify-between p-4 bg-slate-800/50 rounded-lg hover:bg-slate-700/50 transition-colors duration-200 cursor-pointer"
+            className="group flex items-center justify-between p-3 bg-slate-800/50 rounded-lg hover:bg-slate-700/50 transition-colors duration-200 cursor-pointer"
         >
-            <div className="flex items-center gap-4 min-w-0">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
                 <div className="text-cyan-400 flex-shrink-0">
                     {item.type === 'audio' ? <AudioIcon className="w-6 h-6" /> : <VideoIcon className="w-6 h-6" />}
                 </div>
                 <div className="min-w-0">
-                    <h3 className="text-lg font-semibold text-slate-100 truncate">{item.title}</h3>
+                    <h3 className="text-base font-semibold text-slate-100">{item.title}</h3>
                     <p className="text-sm text-slate-400">{item.duration}</p>
                 </div>
             </div>
-            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+            <div className="flex items-center gap-0 flex-shrink-0 ml-2">
                 <button
                     onClick={handleShareClick}
                     aria-label="مشاركة"
-                    className="p-2 rounded-full hover:bg-slate-700/70 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-colors"
+                    className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-700/70 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-colors"
                 >
-                    <ShareIcon className="w-6 h-6 text-slate-400 group-hover:text-white transition-colors" />
+                    <ShareIcon className="w-5 h-5 text-slate-400 group-hover:text-white" />
                 </button>
                 {renderDownloadButton()}
                 <button
                     onClick={(e) => { e.stopPropagation(); onToggleFavorite(item.id); }}
                     aria-label={item.isFavorite ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
-                    className="p-2 rounded-full hover:bg-slate-700/70 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-colors"
+                    className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-700/70 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-colors"
                 >
                     {item.isFavorite
-                        ? <HeartIconSolid className="w-6 h-6 text-pink-500" />
-                        : <HeartIcon className="w-6 h-6 text-slate-400 group-hover:text-white transition-colors" />
+                        ? <HeartIconSolid className="w-5 h-5 text-pink-500" />
+                        : <HeartIcon className="w-5 h-5 text-slate-400 group-hover:text-white" />
                     }
                 </button>
-                <div aria-label={`تشغيل ${item.title}`} className="text-slate-300 group-hover:text-cyan-400 transition-colors">
-                    <PlayIcon className="w-10 h-10" />
+                <div aria-label={`تشغيل ${item.title}`} className="w-10 h-10 flex items-center justify-center text-slate-300 group-hover:text-cyan-400 transition-colors">
+                    <PlayIcon className="w-8 h-8" />
                 </div>
             </div>
         </div>
