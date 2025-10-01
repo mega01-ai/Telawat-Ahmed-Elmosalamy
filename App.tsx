@@ -6,6 +6,7 @@ import LatestAdditionsScreen from './components/LatestAdditionsScreen';
 import FavoritesScreen from './components/FavoritesScreen';
 import PlaylistsScreen from './components/PlaylistsScreen';
 import SettingsScreen from './components/SettingsScreen';
+import DownloadsScreen from './components/DownloadsScreen';
 import SplashScreen from './SplashScreen';
 import SocialLinks from './components/SocialLinks';
 import Player from './components/Player';
@@ -405,12 +406,15 @@ const App: React.FC = () => {
   const renderContent = () => {
     const latestItems = [...mediaData].sort((a, b) => new Date(b.addedDate).getTime() - new Date(a.addedDate).getTime());
     const favoriteItems = mediaData.filter(item => item.isFavorite);
+    const downloadedItems = mediaData.filter(item => item.isDownloaded);
 
     switch (currentView) {
       case 'LATEST':
         return <LatestAdditionsScreen items={latestItems} onBack={handleBack} onPlay={handlePlayItem} onToggleFavorite={handleToggleFavorite} onDownload={handleDownloadItem} onShare={handleShareItem} />;
       case 'FAVORITES':
         return <FavoritesScreen items={favoriteItems} onBack={handleBack} onPlay={handlePlayItem} onToggleFavorite={handleToggleFavorite} onDownload={handleDownloadItem} onShare={handleShareItem} />;
+      case 'DOWNLOADS':
+        return <DownloadsScreen items={downloadedItems} onBack={handleBack} onPlay={handlePlayItem} onToggleFavorite={handleToggleFavorite} onDownload={handleDownloadItem} onShare={handleShareItem} />;
       case 'PLAYLISTS':
         return <PlaylistsScreen onBack={handleBack} />;
       case 'SETTINGS':
@@ -458,7 +462,11 @@ const App: React.FC = () => {
             </div>
           )}
           
-          <OfflineIndicator isOnline={isOnline} hasDownloads={hasDownloads} />
+          <OfflineIndicator 
+            isOnline={isOnline} 
+            hasDownloads={hasDownloads}
+            onNavigate={() => navigateTo('DOWNLOADS')}
+          />
 
           <div className="container mx-auto px-4 py-6 animate-fade-in">
             {renderContent()}
