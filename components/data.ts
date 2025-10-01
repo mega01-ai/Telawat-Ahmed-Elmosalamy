@@ -9,7 +9,7 @@ export const mediaItems: MediaItem[] = [
     type: 'audio',
     url: 'https://archive.org/download/interview-recording-14-1/Interview%20recording%2014_1.mp3',
     isFavorite: false,
-    addedDate: '2024-07-25T10:00:00Z',
+    addedDate: new Date().toISOString(),
     duration: '01:03'
   },
 ];

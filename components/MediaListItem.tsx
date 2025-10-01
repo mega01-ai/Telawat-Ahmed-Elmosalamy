@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { MediaItem } from '../types';
 import { AudioIcon, VideoIcon, HeartIcon, HeartIconSolid, PlayIcon, DownloadIcon, CheckCircleIcon, ShareIcon } from './icons';
+import { formatFullDate } from '../utils';
 
 interface MediaListItemProps {
     item: MediaItem;
@@ -79,8 +80,11 @@ const MediaListItem: React.FC<MediaListItemProps> = ({ item, onPlay, onToggleFav
                     {item.type === 'audio' ? <AudioIcon className="w-6 h-6" /> : <VideoIcon className="w-6 h-6" />}
                 </div>
                 <div className="min-w-0">
-                    <h3 className="text-base font-semibold text-slate-100">{item.title}</h3>
-                    <p className="text-sm text-slate-400">{item.duration}</p>
+                    <h3 className="text-base font-semibold text-slate-100 truncate">{item.title}</h3>
+                    <div className="flex items-baseline space-x-2 rtl:space-x-reverse text-slate-400">
+                        <p className="text-xs truncate">{formatFullDate(item.addedDate)}</p>
+                        <p className="text-sm font-mono">{item.duration}</p>
+                    </div>
                 </div>
             </div>
             <div className="flex items-center gap-0 flex-shrink-0 ml-2">
