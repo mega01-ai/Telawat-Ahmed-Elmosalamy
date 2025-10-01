@@ -134,21 +134,19 @@ const App: React.FC = () => {
   // History management for back button
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
-      if (event.state?.view === 'PLAYLIST_DETAILS' && currentView !== 'PLAYLISTS') {
-        setCurrentView('PLAYLISTS');
-      } else {
-        setCurrentView(event.state?.view || 'MAIN');
-      }
+      // Sync the component's view state with the browser's history state.
+      setCurrentView(event.state?.view || 'MAIN');
     };
 
     window.addEventListener('popstate', handlePopState);
-    // Ensure the initial state is correctly set in the history
+    
+    // Set the initial history state on mount.
     window.history.replaceState({ view: 'MAIN' }, '');
 
     return () => {
       window.removeEventListener('popstate', handlePopState);
     };
-  }, [currentView]);
+  }, []); // Empty dependency array ensures this effect runs only once.
 
 
   // Load downloaded status from DB when it's ready
