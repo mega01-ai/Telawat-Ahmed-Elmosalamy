@@ -1,13 +1,14 @@
+
 import React from 'react';
 import { BackIcon } from './icons';
 
-interface SubscribeScreenProps {
+interface SettingsScreenProps {
   onBack: () => void;
   onEnableNotifications: () => void;
   notificationPermission: NotificationPermission;
 }
 
-const SubscribeScreen: React.FC<SubscribeScreenProps> = ({ onBack, onEnableNotifications, notificationPermission }) => {
+const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack, onEnableNotifications, notificationPermission }) => {
   
   const renderNotificationStatus = () => {
     switch (notificationPermission) {
@@ -44,14 +45,22 @@ const SubscribeScreen: React.FC<SubscribeScreenProps> = ({ onBack, onEnableNotif
         <button onClick={onBack} aria-label="Go back" className="p-2 rounded-full hover:bg-slate-700 transition-colors">
           <BackIcon className="w-8 h-8 text-cyan-400" />
         </button>
-        <h2 className="text-3xl font-bold text-center flex-grow text-cyan-400 pr-10">الاشتراك في التنبيهات</h2>
+        <h2 className="text-3xl font-bold text-center flex-grow text-cyan-400 pr-10">الإعدادات</h2>
       </header>
-      <div className="space-y-4 bg-slate-800/50 p-6 rounded-lg">
-        <h3 className="text-xl font-semibold mb-4 text-slate-100">تنبيهات فورية عند إضافة تلاوات جديدة</h3>
-        {renderNotificationStatus()}
+      <div className="space-y-6">
+        <div className="bg-slate-800/50 p-6 rounded-lg">
+          <h3 className="text-xl font-semibold mb-2 text-slate-100">تنبيهات التلاوات الجديدة</h3>
+          <p className="text-slate-400 mb-4">احصل على إشعار فوري عند إضافة تلاوة جديدة إلى التطبيق.</p>
+          {renderNotificationStatus()}
+        </div>
+
+        <div className="bg-slate-800/50 p-6 rounded-lg text-left" dir="ltr">
+            <h3 className="text-xl font-semibold mb-2 text-slate-100 font-sans">Build Multiple Deployments Simultaneously</h3>
+            <p className="text-slate-400 font-sans">Never wait for a queued build.</p>
+        </div>
       </div>
     </div>
   );
 };
 
-export default SubscribeScreen;
+export default SettingsScreen;

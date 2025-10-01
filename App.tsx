@@ -5,7 +5,7 @@ import MainScreen from './components/MainScreen';
 import LatestAdditionsScreen from './components/LatestAdditionsScreen';
 import FavoritesScreen from './components/FavoritesScreen';
 import PlaylistsScreen from './components/PlaylistsScreen';
-import SubscribeScreen from './components/SettingsScreen';
+import SettingsScreen from './components/SettingsScreen';
 import SplashScreen from './SplashScreen';
 import SocialLinks from './components/SocialLinks';
 import Player from './components/Player';
@@ -414,7 +414,7 @@ const App: React.FC = () => {
       case 'PLAYLISTS':
         return <PlaylistsScreen onBack={handleBack} />;
       case 'SETTINGS':
-        return <SubscribeScreen onBack={handleBack} onEnableNotifications={handleEnableNotifications} notificationPermission={notificationPermission} />;
+        return <SettingsScreen onBack={handleBack} onEnableNotifications={handleEnableNotifications} notificationPermission={notificationPermission} />;
       case 'MAIN':
       default:
         return <MainScreen onNavigate={navigateTo} />;
