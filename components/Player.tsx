@@ -27,7 +27,7 @@ const Player: React.FC<PlayerProps> = ({
   onSeek
 }) => {
   const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
-  const socialLinksCompactHeight = 44; // in px
+  const playerBottomOffset = 56; // Raised from 44px to make social links fully visible
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     onSeek(e.target.valueAsNumber);
@@ -36,7 +36,7 @@ const Player: React.FC<PlayerProps> = ({
   return (
     <div 
       className="fixed left-0 right-0 z-20 bg-slate-800/80 backdrop-blur-lg border-t border-slate-700/60 text-slate-100 animate-slide-up-fade-in"
-      style={{ bottom: `${socialLinksCompactHeight}px` }}
+      style={{ bottom: `${playerBottomOffset}px` }}
     >
       <div className="container mx-auto px-4 py-2">
         {/* Progress bar and time display */}
@@ -70,7 +70,12 @@ const Player: React.FC<PlayerProps> = ({
                 {activeMedia.type === 'audio' ? <AudioIcon className="w-6 h-6"/> : <VideoIcon className="w-6 h-6"/>}
             </div>
             <div className="min-w-0">
-              <p className="font-semibold truncate text-slate-50">{activeMedia.title}</p>
+              <div className="font-semibold text-slate-50 overflow-hidden">
+                  <div className="inline-block whitespace-nowrap animate-marquee">
+                      <span className="mx-6">{activeMedia.title}</span>
+                      <span className="mx-6">{activeMedia.title}</span>
+                  </div>
+              </div>
               <p className="text-xs text-slate-400">{activeMedia.reciter}</p>
             </div>
           </div>

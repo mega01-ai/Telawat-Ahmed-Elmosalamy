@@ -441,7 +441,7 @@ const App: React.FC = () => {
   };
 
   const socialLinksNormalHeight = 56;
-  const socialLinksCompactHeight = 44;
+  const socialLinksCompactHeight = 56; // Changed from 44 to 56 to raise the player
   const playerHeight = 78;
   
   const bottomPadding = activeMedia 
