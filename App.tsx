@@ -502,7 +502,8 @@ const App: React.FC = () => {
           // Fallback if state is lost
           return <PlaylistsScreen onBack={handleBack} onPlaylistSelect={handleSelectPlaylist} />;
         }
-        return <PlaylistDetailsScreen playlist={selectedPlaylist} items={[]} onPlay={(item, playlist) => handlePlayItem(item, playlist, 'PLAYLIST_DETAILS')} {...commonProps} />;
+        const playlistItems = mediaData.filter(item => selectedPlaylist.itemIds?.includes(item.id));
+        return <PlaylistDetailsScreen playlist={selectedPlaylist} items={playlistItems} onPlay={(item, playlist) => handlePlayItem(item, playlist, 'PLAYLIST_DETAILS')} {...commonProps} />;
       case 'SETTINGS':
         return <SettingsScreen onBack={handleBack} onEnableNotifications={handleEnableNotifications} notificationPermission={notificationPermission} />;
       case 'MAIN':

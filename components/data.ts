@@ -28,13 +28,15 @@ export const playlists: Playlist[] = [
     {
         id: 1,
         name: 'تلاوات خاشعة',
-        itemCount: 0,
+        itemCount: 1,
         coverImageUrl: splashImage,
+        itemIds: [10],
     },
     {
         id: 2,
         name: 'القرآن الكريم كاملاً',
         itemCount: 0,
         coverImageUrl: splashImage,
+        itemIds: [],
     },
 ];

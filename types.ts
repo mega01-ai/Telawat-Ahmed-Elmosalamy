@@ -18,6 +18,7 @@ export interface Playlist {
   name: string;
   itemCount: number;
   coverImageUrl: string;
+  itemIds?: number[];
 }
 
 export type View = 'MAIN' | 'LATEST' | 'FAVORITES' | 'PLAYLISTS' | 'SETTINGS' | 'DOWNLOADS' | 'PLAYLIST_DETAILS';
