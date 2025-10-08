@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MediaItem } from '../types';
 import { AudioIcon, VideoIcon, HeartIcon, HeartIconSolid, PlayIcon, DownloadIcon, CheckCircleIcon, ShareIcon } from './icons';
 import { formatFullDate } from '../utils';
@@ -9,10 +9,35 @@ interface MediaListItemProps {
     onToggleFavorite: (id: number) => void;
     onDownload: (id: number) => Promise<void>;
     onShare: (id: number) => void;
+    scrollToItem?: { id: number; key: number } | null;
+    onScrolled?: () => void;
 }
 
-const MediaListItem: React.FC<MediaListItemProps> = ({ item, onPlay, onToggleFavorite, onDownload, onShare }) => {
+const MediaListItem: React.FC<MediaListItemProps> = ({ item, onPlay, onToggleFavorite, onDownload, onShare, scrollToItem, onScrolled }) => {
     const [isDownloading, setIsDownloading] = useState(false);
+    const itemRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (scrollToItem?.id === item.id && itemRef.current) {
+            const element = itemRef.current;
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Ensure the animation can be re-triggered by removing and re-adding the class
+            element.classList.remove('highlight-animation');
+            // Force a reflow to apply the class removal before re-adding it
+            void element.offsetWidth;
+            element.classList.add('highlight-animation');
+            
+            const timer = setTimeout(() => {
+                element.classList.remove('highlight-animation');
+            }, 2500);
+
+            onScrolled?.();
+
+            return () => clearTimeout(timer);
+        }
+    }, [scrollToItem, item.id, onScrolled]);
+
 
     const handleDownloadClick = async (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -72,6 +97,7 @@ const MediaListItem: React.FC<MediaListItemProps> = ({ item, onPlay, onToggleFav
 
     return (
         <div 
+            ref={itemRef}
             onClick={onPlay}
             className="group flex items-center justify-between p-3 bg-slate-800/50 rounded-lg hover:bg-slate-700/50 transition-colors duration-200 cursor-pointer"
         >

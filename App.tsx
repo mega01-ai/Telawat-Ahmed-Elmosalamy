@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import type { View, MediaItem, Playlist } from './types';
 import MainScreen from './components/MainScreen';
@@ -36,6 +35,7 @@ interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
 }
 
+type RepeatMode = 'none' | 'playlist' | 'track';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>('MAIN');
@@ -46,6 +46,7 @@ const App: React.FC = () => {
   const [installPromptEvent, setInstallPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
   const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null);
+  const [scrollToItem, setScrollToItem] = useState<{ id: number; key: number } | null>(null);
 
 
   const [mediaData, setMediaData] = useState<MediaItem[]>(() => {
@@ -64,11 +65,14 @@ const App: React.FC = () => {
   });
 
   // --- Player State ---
-  const [activeMedia, setActiveMedia] = useState<{ item: MediaItem, playlist: MediaItem[] } | null>(null);
+  const [activeMedia, setActiveMedia] = useState<{ item: MediaItem, playlist: MediaItem[], sourceView: View } | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [repeatMode, setRepeatMode] = useState<RepeatMode>('none');
   const audioRef = useRef<HTMLAudioElement>(null);
+  const playerRef = useRef<HTMLDivElement>(null);
+  const [playerHeight, setPlayerHeight] = useState(78);
   const currentBlobUrl = useRef<string | null>(null);
 
   // --- Video Player State ---
@@ -194,8 +198,24 @@ const App: React.FC = () => {
     }
   }, []);
 
+  // Effect to observe player height for dynamic padding
+  useEffect(() => {
+    const element = playerRef.current;
+    if (!element) return;
+
+    const observer = new ResizeObserver(entries => {
+        for (let entry of entries) {
+            setPlayerHeight(entry.contentRect.height);
+        }
+    });
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [activeMedia]); // Re-observe when player visibility changes
+
+
   // --- Player Handlers ---
-  const handlePlayItem = async (item: MediaItem, playlist: MediaItem[]) => {
+  const handlePlayItem = async (item: MediaItem, playlist: MediaItem[], sourceView: View) => {
     if (currentBlobUrl.current) {
         URL.revokeObjectURL(currentBlobUrl.current);
         currentBlobUrl.current = null;
@@ -212,7 +232,7 @@ const App: React.FC = () => {
           return;
       }
       
-      setActiveMedia({ item, playlist });
+      setActiveMedia({ item, playlist, sourceView });
       setIsPlaying(true);
 
       let audioSrc = item.url;
@@ -252,7 +272,7 @@ const App: React.FC = () => {
     const currentIndex = findCurrentIndex();
     if (currentIndex !== -1) {
       const nextIndex = (currentIndex + 1) % activeMedia.playlist.length;
-      handlePlayItem(activeMedia.playlist[nextIndex], activeMedia.playlist);
+      handlePlayItem(activeMedia.playlist[nextIndex], activeMedia.playlist, activeMedia.sourceView);
     }
   };
 
@@ -261,7 +281,7 @@ const App: React.FC = () => {
     const currentIndex = findCurrentIndex();
     if (currentIndex !== -1) {
       const prevIndex = (currentIndex - 1 + activeMedia.playlist.length) % activeMedia.playlist.length;
-      handlePlayItem(activeMedia.playlist[prevIndex], activeMedia.playlist);
+      handlePlayItem(activeMedia.playlist[prevIndex], activeMedia.playlist, activeMedia.sourceView);
     }
   };
   
@@ -289,6 +309,12 @@ const App: React.FC = () => {
 
   const handleCloseVideoPlayer = () => {
     setPlayingVideo(null);
+  };
+  
+  const handleGoToTrackInList = () => {
+      if (!activeMedia) return;
+      setScrollToItem({ id: activeMedia.item.id, key: Date.now() });
+      navigateTo(activeMedia.sourceView);
   };
 
   const handleToggleFavorite = (itemId: number) => {
@@ -412,18 +438,63 @@ const App: React.FC = () => {
       window.history.back();
   };
 
+  const onScrolled = () => {
+    setScrollToItem(null);
+  };
+  
+  const handleToggleRepeatMode = () => {
+    setRepeatMode(prevMode => {
+        if (prevMode === 'none') return 'playlist';
+        if (prevMode === 'playlist') return 'track';
+        return 'none'; // from 'track' back to 'none'
+    });
+  };
+
+  const handleTrackEnd = () => {
+    if (!activeMedia) return;
+
+    if (repeatMode === 'track' && audioRef.current) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play().catch(e => console.error("Error re-playing audio:", e));
+        return;
+    }
+    
+    const currentIndex = findCurrentIndex();
+    const isLastTrack = currentIndex === activeMedia.playlist.length - 1;
+
+    if (repeatMode === 'none' && isLastTrack) {
+        setIsPlaying(false);
+        if (audioRef.current) {
+            audioRef.current.currentTime = 0;
+        }
+    } else {
+        // This handles 'playlist' repeat mode and 'none' for non-last tracks
+        handleNext();
+    }
+  };
+
   const renderContent = () => {
     const latestItems = [...mediaData].sort((a, b) => new Date(b.addedDate).getTime() - new Date(a.addedDate).getTime());
     const favoriteItems = mediaData.filter(item => item.isFavorite);
     const downloadedItems = mediaData.filter(item => item.isDownloaded);
 
+    // Fix: Correctly assign handler functions to props instead of using shorthand properties for non-existent variables.
+    const commonProps = {
+      onToggleFavorite: handleToggleFavorite,
+      onDownload: handleDownloadItem,
+      onShare: handleShareItem,
+      onBack: handleBack,
+      scrollToItem,
+      onScrolled
+    };
+
     switch (currentView) {
       case 'LATEST':
-        return <LatestAdditionsScreen items={latestItems} onBack={handleBack} onPlay={handlePlayItem} onToggleFavorite={handleToggleFavorite} onDownload={handleDownloadItem} onShare={handleShareItem} />;
+        return <LatestAdditionsScreen items={latestItems} onPlay={(item, playlist) => handlePlayItem(item, playlist, 'LATEST')} {...commonProps} />;
       case 'FAVORITES':
-        return <FavoritesScreen items={favoriteItems} onBack={handleBack} onPlay={handlePlayItem} onToggleFavorite={handleToggleFavorite} onDownload={handleDownloadItem} onShare={handleShareItem} />;
+        return <FavoritesScreen items={favoriteItems} onPlay={(item, playlist) => handlePlayItem(item, playlist, 'FAVORITES')} {...commonProps} />;
       case 'DOWNLOADS':
-        return <DownloadsScreen items={downloadedItems} onBack={handleBack} onPlay={handlePlayItem} onToggleFavorite={handleToggleFavorite} onDownload={handleDownloadItem} onShare={handleShareItem} />;
+        return <DownloadsScreen items={downloadedItems} onPlay={(item, playlist) => handlePlayItem(item, playlist, 'DOWNLOADS')} {...commonProps} />;
       case 'PLAYLISTS':
         return <PlaylistsScreen onBack={handleBack} onPlaylistSelect={handleSelectPlaylist} />;
       case 'PLAYLIST_DETAILS':
@@ -431,7 +502,7 @@ const App: React.FC = () => {
           // Fallback if state is lost
           return <PlaylistsScreen onBack={handleBack} onPlaylistSelect={handleSelectPlaylist} />;
         }
-        return <PlaylistDetailsScreen playlist={selectedPlaylist} items={[]} onBack={handleBack} onPlay={handlePlayItem} onToggleFavorite={handleToggleFavorite} onDownload={handleDownloadItem} onShare={handleShareItem} />;
+        return <PlaylistDetailsScreen playlist={selectedPlaylist} items={[]} onPlay={(item, playlist) => handlePlayItem(item, playlist, 'PLAYLIST_DETAILS')} {...commonProps} />;
       case 'SETTINGS':
         return <SettingsScreen onBack={handleBack} onEnableNotifications={handleEnableNotifications} notificationPermission={notificationPermission} />;
       case 'MAIN':
@@ -441,8 +512,7 @@ const App: React.FC = () => {
   };
 
   const socialLinksNormalHeight = 56;
-  const socialLinksCompactHeight = 56; // Changed from 44 to 56 to raise the player
-  const playerHeight = 78;
+  const socialLinksCompactHeight = 56;
   
   const bottomPadding = activeMedia 
     ? playerHeight + socialLinksCompactHeight 
@@ -456,7 +526,7 @@ const App: React.FC = () => {
         ref={audioRef}
         onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime || 0)}
         onLoadedMetadata={() => setDuration(audioRef.current?.duration || 0)}
-        onEnded={handleNext}
+        onEnded={handleTrackEnd}
         hidden
       />
       {showSplash && <SplashScreen />}
@@ -505,15 +575,19 @@ const App: React.FC = () => {
 
           {activeMedia && (
             <Player 
+              ref={playerRef}
               activeMedia={activeMedia.item}
               isPlaying={isPlaying}
               currentTime={currentTime}
               duration={duration}
+              repeatMode={repeatMode}
               onTogglePlay={handleTogglePlay}
               onNext={handleNext}
               onPrevious={handlePrevious}
               onClose={handleClosePlayer}
               onSeek={handleSeek}
+              onGoToTrackInList={handleGoToTrackInList}
+              onToggleRepeatMode={handleToggleRepeatMode}
             />
           )}
         </>

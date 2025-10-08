@@ -10,9 +10,11 @@ interface FavoritesScreenProps {
   onToggleFavorite: (id: number) => void;
   onDownload: (id: number) => Promise<void>;
   onShare: (id: number) => void;
+  scrollToItem: { id: number; key: number } | null;
+  onScrolled: () => void;
 }
 
-const FavoritesScreen: React.FC<FavoritesScreenProps> = ({ items, onBack, onPlay, onToggleFavorite, onDownload, onShare }) => {
+const FavoritesScreen: React.FC<FavoritesScreenProps> = ({ items, onBack, onPlay, onToggleFavorite, onDownload, onShare, scrollToItem, onScrolled }) => {
 
   return (
     <div className="animate-fade-in">
@@ -24,7 +26,7 @@ const FavoritesScreen: React.FC<FavoritesScreenProps> = ({ items, onBack, onPlay
       </header>
       <div className="space-y-4">
         {items.length > 0 ? (
-          items.map(item => <MediaListItem key={item.id} item={item} onPlay={() => onPlay(item, items)} onToggleFavorite={onToggleFavorite} onDownload={onDownload} onShare={onShare} />)
+          items.map(item => <MediaListItem key={item.id} item={item} onPlay={() => onPlay(item, items)} onToggleFavorite={onToggleFavorite} onDownload={onDownload} onShare={onShare} scrollToItem={scrollToItem} onScrolled={onScrolled} />)
         ) : (
           <p className="text-center text-slate-400 mt-8">لا توجد عناصر في المفضلة بعد.</p>
         )}
