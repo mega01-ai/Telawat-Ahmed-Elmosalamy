@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { BackIcon } from './icons';
 
@@ -52,11 +53,6 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack, onEnableNotific
           <h3 className="text-xl font-semibold mb-2 text-slate-100">تنبيهات التلاوات الجديدة</h3>
           <p className="text-slate-400 mb-4">احصل على إشعار فوري عند إضافة تلاوة جديدة إلى التطبيق.</p>
           {renderNotificationStatus()}
-        </div>
-
-        <div className="bg-slate-800/50 p-6 rounded-lg text-left" dir="ltr">
-            <h3 className="text-xl font-semibold mb-2 text-slate-100 font-sans">Build Multiple Deployments Simultaneously</h3>
-            <p className="text-slate-400 font-sans">Never wait for a queued build.</p>
         </div>
       </div>
     </div>
