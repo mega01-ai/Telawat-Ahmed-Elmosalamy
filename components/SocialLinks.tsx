@@ -58,7 +58,7 @@ const SocialLinks: React.FC<SocialLinksProps> = ({ isPlayerActive }) => {
                 </a>
               ))}
             </div>
-            <p className="text-center text-xs text-slate-500 pb-2 -mt-1">
+            <p className="text-center text-xs text-slate-500 pb-2 mt-1">
                 Created by @a.elmosalamy
             </p>
         </div>
