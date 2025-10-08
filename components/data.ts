@@ -3,13 +3,23 @@ import { splashImage } from './images';
 
 export const mediaItems: MediaItem[] = [
   {
+    id: 11,
+    title: 'سورة لقمان',
+    reciter: 'احمد المسلمي',
+    type: 'audio',
+    url: 'https://archive.org/download/interview-recording-67/Interview%20recording%2067.mp3',
+    isFavorite: false,
+    addedDate: new Date().toISOString(),
+    duration: '03:05'
+  },
+  {
     id: 10,
     title: 'من سورة الروم -عشاء',
     reciter: 'احمد المسلمي',
     type: 'audio',
     url: 'https://archive.org/download/interview-recording-62-1/Interview%20recording%2062_1.mp3',
     isFavorite: false,
-    addedDate: new Date().toISOString(),
+    addedDate: '2024-05-21T18:00:00.000Z',
     duration: '05:29'
   },
   {
@@ -35,8 +45,8 @@ export const playlists: Playlist[] = [
     {
         id: 2,
         name: 'القرآن الكريم كاملاً',
-        itemCount: 0,
+        itemCount: 1,
         coverImageUrl: splashImage,
-        itemIds: [],
+        itemIds: [11],
     },
 ];
