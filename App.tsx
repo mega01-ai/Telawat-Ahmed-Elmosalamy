@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { View, MediaItem, Playlist } from './types';
 import MainScreen from './components/MainScreen';
 import LatestAdditionsScreen from './components/LatestAdditionsScreen';
@@ -21,6 +21,7 @@ import { BellIcon } from './components/icons';
 
 
 const FAVORITES_STORAGE_KEY = 'ahmed-elmosalamy-favorites';
+const SEEN_ITEMS_STORAGE_KEY = 'ahmed-elmosalamy-seen-items';
 // This VAPID key is used to identify the application server to the push service.
 // In a real-world scenario, this key should be securely generated and managed on a server.
 const VAPID_PUBLIC_KEY = 'BPnZEgACUy5zC2nOG_n_3L3JtL2eY2y8Tq525t-SK4yr2a8p4AhzQUUa_hFLF9zAc_I37L2TfZIFe13sD2uG274';
@@ -135,7 +136,14 @@ const App: React.FC = () => {
     };
   }, []);
 
-  // History management for back button
+  const navigateTo = useCallback((view: View) => {
+    if (currentView !== view) {
+        window.history.pushState({ view: view }, '');
+        setCurrentView(view);
+    }
+  }, [currentView]);
+
+  // History management for back button and hash navigation
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
       // Sync the component's view state with the browser's history state.
@@ -144,8 +152,15 @@ const App: React.FC = () => {
 
     window.addEventListener('popstate', handlePopState);
     
-    // Set the initial history state on mount.
-    window.history.replaceState({ view: 'MAIN' }, '');
+    // Check hash on initial load from notification click
+    const hash = window.location.hash.substring(1).toUpperCase();
+    if (hash === 'LATEST') {
+        window.history.replaceState({ view: 'LATEST' }, '', window.location.pathname); // Replace state and clear hash
+        setCurrentView('LATEST');
+    } else {
+        // Set the initial history state on mount for normal loads.
+        window.history.replaceState({ view: 'MAIN' }, '');
+    }
 
     return () => {
       window.removeEventListener('popstate', handlePopState);
@@ -176,6 +191,60 @@ const App: React.FC = () => {
         console.error("Failed to save favorites to localStorage", error);
     }
   }, [mediaData]);
+
+  // Effect to check for new content and notify user
+  useEffect(() => {
+    if (notificationPermission !== 'granted' || !mediaData.length || !isOnline) {
+        return;
+    }
+
+    const checkAndNotify = async () => {
+        try {
+            const seenItemsRaw = localStorage.getItem(SEEN_ITEMS_STORAGE_KEY);
+            const allItemIds = mediaData.map(item => item.id);
+
+            // On first visit with notification permissions, just store items and don't notify.
+            if (!seenItemsRaw) {
+                localStorage.setItem(SEEN_ITEMS_STORAGE_KEY, JSON.stringify(allItemIds));
+                return;
+            }
+
+            const seenItemIds: number[] = JSON.parse(seenItemsRaw);
+            const newItems = mediaData.filter(item => !seenItemIds.includes(item.id));
+
+            if (newItems.length > 0) {
+                const swRegistration = await navigator.serviceWorker.ready;
+                let title = 'تلاوة جديدة';
+                let body = `تم إضافة: ${newItems[0].title}`;
+                
+                if (newItems.length > 1) {
+                    title = 'تلاوات جديدة';
+                    body = `تم إضافة ${newItems.length} تلاوات جديدة. استمع الآن!`;
+                }
+
+                swRegistration.showNotification(title, {
+                    body: body,
+                    icon: 'https://archive.org/download/t-401753960439209/__ia_thumb.jpg',
+                    badge: 'https://archive.org/download/t-401753960439209/__ia_thumb.jpg',
+                    data: {
+                      url: '/#LATEST'
+                    }
+                });
+            }
+            
+            // Update the seen items list to prevent re-notifying
+            localStorage.setItem(SEEN_ITEMS_STORAGE_KEY, JSON.stringify(allItemIds));
+
+        } catch (error) {
+            console.error('Failed to check for new content or notify:', error);
+        }
+    };
+
+    // Delay check slightly to not interfere with startup animations
+    const timer = setTimeout(checkAndNotify, 3000);
+    return () => clearTimeout(timer);
+
+  }, [notificationPermission, mediaData, isOnline]);
 
 
   // Effect to control audio playback (play/pause)
@@ -420,13 +489,6 @@ const App: React.FC = () => {
         setNotification({ message: 'تم حظر إذن الإشعارات.', type: 'error' });
     }
     // If 'default', nothing happens yet, the user dismissed the prompt.
-  };
-
-  const navigateTo = (view: View) => {
-    if (currentView !== view) {
-        window.history.pushState({ view: view }, '');
-        setCurrentView(view);
-    }
   };
 
   const handleSelectPlaylist = (playlist: Playlist) => {
